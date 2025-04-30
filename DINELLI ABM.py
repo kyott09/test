@@ -3,7 +3,7 @@ USUARIOS = {}
 import re
 
 def mostrar_menu():
-    print("\n--- / Menú de Gestión de Usuarios / ---\n")
+    print("\n--- / --- Menú de Gestión de Usuarios --- / ---\n")
     print("     1. Alta de Usuario")
     print("     2. Búsqueda de Usuario")
     print("     3. Actualizar Usuario")
