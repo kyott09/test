@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Usuarios</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; }
+    input, button { margin: 0.5rem; padding: 0.4rem; }
+  </style>
+</head>
+<body>
+  <h1>Usuarios API</h1>
+
+  <h2>Crear Usuario</h2>
+  <input id="dni" placeholder="DNI" />
+  <input id="nombre" placeholder="Nombre" />
+  <input id="telefono" placeholder="Teléfono" />
+  <input id="email" placeholder="Email" />
+  <button onclick="crearUsuario()">Crear</button>
+
+  <h2>Usuarios</h2>
+  <button onclick="cargarUsuarios()">Cargar Todos</button>
+  <ul id="usuarios"></ul>
+
+  <script>
+    const API_URL = "/usuarios";
+
+    function crearUsuario() {
+      const data = {
+        DNI: document.getElementById("dni").value,
+        NOMBRE_USUARIO: document.getElementById("nombre").value,
+        TELEFONO: document.getElementById("telefono").value,
+        EMAIL: document.getElementById("email").value,
+      };
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(res => {
+        alert("Usuario creado");
+        cargarUsuarios();
+      })
+      .catch(err => alert("Error: " + err));
+    }
+
+    function cargarUsuarios() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          const lista = document.getElementById("usuarios");
+          lista.innerHTML = "";
+          Object.values(data).forEach(u => {
+            const li = document.createElement("li");
+            li.textContent = `${u.DNI}: ${u.NOMBRE_USUARIO} - ${u.EMAIL}`;
+            lista.appendChild(li);
+          });
+        });
+    }
+  </script>
+</body>
+</html>

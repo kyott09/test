@@ -1,15 +1,21 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, EmailStr
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 import json
 import os
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 ARCHIVO = "usuarios.json"
 
-@app.get("/")
+@app.get("/", response_class=FileResponse)
 def read_root():
-    return {"message": "Hello World"}
+    return FileResponse("static/index.html")
+
 
 class Usuario(BaseModel):
     DNI: str
