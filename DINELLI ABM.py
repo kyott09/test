@@ -2,6 +2,8 @@ USUARIOS = {}
 
 import re
 
+print("cambio")
+
 def mostrar_menu():
     print("\n--- / --- Menú de Gestión de Usuarios --- / ---\n")
     print("     1. Alta de Usuario")
