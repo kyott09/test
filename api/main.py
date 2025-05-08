@@ -1,21 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, EmailStr
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-
-import json
-import os
+from supabase import create_client, Client  # Importar para conectarse a Supabase
+import os  # Importar os para acceder a las variables de entorno
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Obtener las variables de entorno de Supabase
+url = os.getenv("SUPABASE_URL")  # Obtiene la URL de Supabase desde las variables de entorno
+key = os.getenv("SUPABASE_KEY")  # Obtiene la clave pública de Supabase desde las variables de entorno
 
-ARCHIVO = "usuarios.json"
-
-@app.get("/", response_class=FileResponse)
-def read_root():
-    return FileResponse("static/index.html")
-
+# Crear el cliente de Supabase utilizando las variables de entorno
+supabase: Client = create_client(url, key)
 
 class Usuario(BaseModel):
     DNI: str
@@ -23,61 +18,49 @@ class Usuario(BaseModel):
     TELEFONO: str
     EMAIL: EmailStr
 
-def cargar_usuarios():
-    if os.path.exists(ARCHIVO):
-        with open(ARCHIVO, "r") as f:
-            usuarios = json.load(f)
-            print(f"Usuarios cargados: {usuarios}")  # Imprimir usuarios cargados
-            return usuarios
-    print("No se encontró el archivo o está vacío.")  # Mensaje si el archivo no existe
-    return {}
-
-def guardar_usuarios(data):
-    with open(ARCHIVO, "w") as f:
-        json.dump(data, f, indent=4)
-    print(f"Datos guardados: {data}")  # Imprimir los datos guardados
-
-@app.get("/usuarios")
-def listar_usuarios():
-    usuarios = cargar_usuarios()
-    print(f"Usuarios listados: {usuarios}")  # Imprimir usuarios listados
-    return usuarios
-
-@app.get("/usuarios/{dni}")
-def obtener_usuario(dni: str):
-    usuarios = cargar_usuarios()
-    if dni in usuarios:
-        return usuarios[dni]
-    raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
 @app.post("/usuarios", status_code=201)
 def crear_usuario(usuario: Usuario):
-    usuarios = cargar_usuarios()
-    if usuario.DNI in usuarios:
+    # Verificar si el DNI ya existe en la base de datos de Supabase
+    existing_user = supabase.table("usuarios").select("*").eq("DNI", usuario.DNI).execute()
+    if len(existing_user.data) > 0:
         raise HTTPException(status_code=409, detail="El DNI ya está registrado")
-    usuarios[usuario.DNI] = usuario.dict()
-    guardar_usuarios(usuarios)
+    
+    # Insertar el nuevo usuario en la tabla "usuarios"
+    supabase.table("usuarios").insert(usuario.dict()).execute()
     return usuario
 
 @app.put("/usuarios/{dni}")
 def actualizar_usuario(dni: str, datos: Usuario):
-    usuarios = cargar_usuarios()
-    if dni not in usuarios:
+    # Verificar si el usuario existe en Supabase
+    existing_user = supabase.table("usuarios").select("*").eq("DNI", dni).execute()
+    if len(existing_user.data) == 0:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    usuarios[dni] = datos.dict()
-    guardar_usuarios(usuarios)
+    
+    # Actualizar el usuario en la tabla "usuarios"
+    supabase.table("usuarios").update(datos.dict()).eq("DNI", dni).execute()
     return {"mensaje": "Usuario actualizado", "usuario": datos}
+
+@app.get("/usuarios")
+def listar_usuarios():
+    # Obtener todos los usuarios desde la tabla "usuarios"
+    usuarios = supabase.table("usuarios").select("*").execute()
+    return usuarios.data
+
+@app.get("/usuarios/{dni}")
+def obtener_usuario(dni: str):
+    # Obtener un usuario específico por DNI desde la tabla "usuarios"
+    usuario = supabase.table("usuarios").select("*").eq("DNI", dni).execute()
+    if len(usuario.data) == 0:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return usuario.data[0]
 
 @app.delete("/usuarios/{dni}")
 def eliminar_usuario(dni: str):
-    usuarios = cargar_usuarios()
-    if dni in usuarios:
-        eliminado = usuarios.pop(dni)
-        guardar_usuarios(usuarios)
-        return {"mensaje": "Usuario eliminado", "usuario": eliminado}
-    raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    # Eliminar un usuario por DNI de la tabla "usuarios"
+    usuario = supabase.table("usuarios").select("*").eq("DNI", dni).execute()
+    if len(usuario.data) == 0:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    supabase.table("usuarios").delete().eq("DNI", dni).execute()
+    return {"mensaje": "Usuario eliminado", "usuario": usuario.data[0]}
 
-# Este bloque es para asegurar que `uvicorn` ejecute tu app correctamente en entornos locales o en despliegue
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
