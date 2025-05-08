@@ -3,8 +3,18 @@ from pydantic import BaseModel, EmailStr
 import json
 import os
 
+from fastapi import FastAPI
+
 app = FastAPI()
 ARCHIVO = "usuarios.json"
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 # ─── Modelos ─────────────────────────────────────────────────────────
 
@@ -65,15 +75,3 @@ def eliminar_usuario(dni: str):
         guardar_usuarios(usuarios)
         return {"mensaje": "Usuario eliminado", "usuario": eliminado}
     raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello World"}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
