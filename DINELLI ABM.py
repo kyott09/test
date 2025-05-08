@@ -73,7 +73,7 @@ def alta_usuario():
         nombre_usuario = input_nombre_usuario()
         tel = input_telefono()
         while True:
-            email = input("   Ingrese el Email: ").strip()
+            email = input("Ingrese el Email: ").strip()
             if validar_email(email):
                 break
             print("   El correo ingresado no es válido.")
