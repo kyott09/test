@@ -1,1 +1,14 @@
-{"45840470": {"DNI": "45840470", "NOMBRE_USUARIO": "tobias", "TELEFONO": "3764276147", "EMAIL": "tobiasdinelli@gmail.com"}}
+{
+    "45840470": {
+        "DNI": "45840470",
+        "NOMBRE_USUARIO": "tobias",
+        "TELEFONO": "3764276147",
+        "EMAIL": "tobiasdinelli@gmail.com"
+    },
+    "string": {
+        "DNI": "string",
+        "NOMBRE_USUARIO": "string",
+        "TELEFONO": "string",
+        "EMAIL": "user@example.com"
+    }
+}
