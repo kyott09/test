@@ -2,8 +2,6 @@ USUARIOS = {}
 
 import re
 
-print("cambio")
-
 def mostrar_menu():
     print("\n--- / --- Menú de Gestión de Usuarios --- / ---\n")
     print("     1. Alta de Usuario")
@@ -56,7 +54,7 @@ def alta_usuario():
         nombre_usuario = input_nombre_usuario()
         tel = input_telefono()
         while True:
-            email = input("   Ingrese el Email: ").strip()
+            email = input("Ingrese el Email: ").strip()
             if not validar_email(email):
                 print("\n   El correo ingresado no es válido. Intente nuevamente.")
             else:
@@ -100,8 +98,10 @@ def mostrar_usuarios():
     if not USUARIOS:
         print("\n     No hay usuarios registrados.")
     else:
+        print(f"\n{'DNI':<10} {'Nombre de Usuario':<20} {'Teléfono':<15} {'Email':<30}")
+        print("-" * 75)
         for valor, dato in USUARIOS.items():
-            print("\n", valor, dato)
+            print(f"{valor:<10} {dato['NOMBRE_USUARIO']:<20} {dato['TELEFONO']:<15} {dato['EMAIL']:<30}")
 
 def modificar_nombre_usuario():
     dni_actualizar = input_dni("Ingrese el DNI del usuario a modificar: ")
