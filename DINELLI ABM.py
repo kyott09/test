@@ -2,6 +2,25 @@ USUARIOS = {}
 
 import re
 
+import json
+
+def guardar_datos():
+    with open("usuarios.json", "w") as f:
+        json.dump(USUARIOS, f)
+
+def cargar_datos():
+    try:
+        with open("usuarios.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+# Cargar los datos al inicio
+USUARIOS = cargar_datos()
+
+# Guardar los datos al final
+guardar_datos()
+
 def mostrar_menu():
     print("\n--- / --- Menú de Gestión de Usuarios --- / ---\n")
     print("     1. Alta de Usuario")
