@@ -72,12 +72,10 @@ def buscar_usuario():
     dni_buscar = input_dni("\nIngrese el DNI del usuario a buscar: ")
     if dni_buscar in USUARIOS:
         usuario = USUARIOS[dni_buscar]
-        print("\n      --- DATOS DEL USUARIO ---\n")
-        print("      -NOMBRE DE USUARIO: ", usuario["NOMBRE_USUARIO"])
-        print("      -DNI: ", usuario["DNI"])
-        print("      -TELÉFONO: ", usuario["TELEFONO"])
-        print("      -EMAIL: ", usuario["EMAIL"])
-        print("\n      --------------------------")
+        print(f"\n{'DNI':<10} {'Nombre de Usuario':<20} {'Teléfono':<15} {'Email':<30}")
+        print("-" * 75)
+        for valor, dato in USUARIOS.items():
+            print(f"{valor:<10} {dato['NOMBRE_USUARIO']:<20} {dato['TELEFONO']:<15} {dato['EMAIL']:<30}")
     else:
         print("\n     El DNI no está registrado, intente nuevamente.")
 
