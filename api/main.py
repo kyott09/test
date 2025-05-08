@@ -3,25 +3,19 @@ from pydantic import BaseModel, EmailStr
 import json
 import os
 
-from fastapi import FastAPI
-
 app = FastAPI()
+
 ARCHIVO = "usuarios.json"
 
 @app.get("/")
 def read_root():
     return {"message": "Hello World"}
 
-
-# ─── Modelos ─────────────────────────────────────────────────────────
-
 class Usuario(BaseModel):
     DNI: str
     NOMBRE_USUARIO: str
     TELEFONO: str
     EMAIL: EmailStr
-
-# ─── Utilidades ──────────────────────────────────────────────────────
 
 def cargar_usuarios():
     if os.path.exists(ARCHIVO):
@@ -32,8 +26,6 @@ def cargar_usuarios():
 def guardar_usuarios(data):
     with open(ARCHIVO, "w") as f:
         json.dump(data, f, indent=4)
-
-# ─── Rutas de la API ─────────────────────────────────────────────────
 
 @app.get("/usuarios")
 def listar_usuarios():
@@ -72,3 +64,8 @@ def eliminar_usuario(dni: str):
         guardar_usuarios(usuarios)
         return {"mensaje": "Usuario eliminado", "usuario": eliminado}
     raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+# Este bloque es para asegurar que `uvicorn` ejecute tu app correctamente en entornos locales o en despliegue
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
